@@ -1,0 +1,54 @@
+version: '3.8'
+services: 
+    db-postgres:
+      image: postgres:13
+      container_name: postgres_docker_symfony
+      restart: always
+      mem_limit: 1536MB
+      mem_reservation: 1G
+      ports:
+        - 5442:5432
+      volumes: 
+        - dbdata:/var/lib/postgresql
+      networks: 
+        - dev
+      environment: 
+        POSTGRES_USER: root
+        POSTGRES_PASSWORD: root
+    maildev:
+      image: maildev/maildev
+      container_name: maildev_docker_symfony
+      restart: always
+      ports: 
+        - 8080:80
+      networks: 
+        - dev
+      command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
+    pgadmin4:
+      image: dpage/pgadmin4
+      restart: always
+      networks: 
+        - dev
+      depends_on:
+        - db-postgres
+      ports: 
+        - 8081:80
+      environment: 
+        PGADMIN_DEFAULT_EMAIL: ousmanedia846@gmail.com
+        PGADMIN_DEFAULT_PASSWORD: bios1997dia
+    www:
+      build: php
+      restart: always
+      container_name: www_docker_symfony
+      ports: 
+        - 8083:80
+      networks: 
+        - dev
+      volumes: 
+        - ./php/vhosts/:/etc/apache2/sites-enabled
+        - ./:/var/www
+
+volumes: 
+  dbdata:
+networks: 
+  dev:
